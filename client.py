@@ -27,7 +27,7 @@ class Client(threading.Thread):
 
    def tprint(self, str):
       self.lock.acquire()
-      print "[Client]", str
+      print '\033[94m[Client]\033[0m', str
       self.lock.release()
 
 

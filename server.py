@@ -28,7 +28,7 @@ class Server(threading.Thread):
 
    def tprint(self, str):
       self.lock.acquire()
-      print "[Server]", str
+      print '\033[92m[Server]\033[0m', str
       self.lock.release()
 
 if __name__=='__main__':
