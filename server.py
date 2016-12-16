@@ -43,6 +43,7 @@ class Server(threading.Thread):
       self.box = pydes.DES(DH.getKey()[:16])
       self.box.genSubKeys()
       self.tprint('DES key calculated, beginning DES communication now!')
+      self.tprint(DH.getKey())
 
    def tprint(self, str):
       self.lock.acquire()

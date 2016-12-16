@@ -37,6 +37,7 @@ class Client(threading.Thread):
 
       self.box = pydes.DES(DH.getKey()[:16])
       self.box.genSubKeys()
+      self.tprint(DH.getKey())
       self.tprint('DES key calculated, beginning DES communication now!')
 
    def tprint(self, str):
