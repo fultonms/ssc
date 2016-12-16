@@ -27,7 +27,7 @@ class Server(threading.Thread):
    def startup(self):
       self.tprint("Starting up...")
       self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      self.sock.bind(('127.0.0.1', self.port))
+      self.sock.bind(('0.0.0.0', self.port))
       self.sock.listen(0)
       self.tprint("Listening for connections on port " + str(self.port))
 

@@ -14,7 +14,7 @@ parser.add_argument('-sp', required=False, help='Port to use for server', nargs=
 args = parser.parse_args()
 
 if args.ip != None:
-   IP = args.ip
+   IP = str(args.ip[0])
 if args.cport != None:
    clientPort = int(args.cport[0])
 if args.sport != None:
