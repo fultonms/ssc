@@ -178,14 +178,17 @@ class DES(object):
       return result
 
    def encrypt(self, m):
-         message = BitArray(bytes=m)
-         return self.descrypt(message, self.subkeys)
+      if m.length < 64:
+         i = 64 - m.length
+         while i > 0:
+            m.append('0b0')
+            i -= 1
+      return self.descrypt(m, self.subkeys)
 
    def decrypt(self, c):
-         cipher = BitArray(bytes=c)
-         revkeys = self.subkeys
-         revkeys.reverse()
-         return self.descrypt(cipher, revkeys)
+      revkeys = self.subkeys
+      revkeys.reverse()
+      return self.descrypt(c, revkeys)
          
 if __name__ == '__main__':
    print 'This module should be imported'

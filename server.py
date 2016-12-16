@@ -1,7 +1,7 @@
 import threading
 import socket
 import struct
-import bitstring
+import bitstring as bs
 import pydes
 import pydh
 
@@ -14,10 +14,15 @@ class Server(threading.Thread):
 
    def run(self):
       self.startup()
+      buffer = ''
       while True:
-         text = self.client.recv(4096).decode('ascii')
-         if text != '':
-            self.tprint(text)
+         cipher = self.client.recv(8)
+         b = bs.BitArray(bytes = cipher)
+         m = self.box.decrypt(b)
+         self.tprint("Cipher:" + str(b))
+         self.tprint("Plain: " + str(m))
+         mstr = m.hex.decode('hex')
+         self.tprint(mstr)
 
    def startup(self):
       self.tprint("Starting up...")
@@ -43,7 +48,7 @@ class Server(threading.Thread):
       self.box = pydes.DES(DH.getKey()[:16])
       self.box.genSubKeys()
       self.tprint('DES key calculated, beginning DES communication now!')
-      self.tprint(DH.getKey())
+      self.tprint(DH.getKey()[:16])
 
    def tprint(self, str):
       self.lock.acquire()
