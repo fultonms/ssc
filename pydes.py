@@ -125,7 +125,7 @@ def f(r, k):
 
 class DES(object):
    def __init__(self, key):
-      self.key = key
+      self.key = BitArray(hex='0x'+key)
 
    def genSubKeys(self):
       kPrime = permute(self.key, PC1)
@@ -178,16 +178,14 @@ class DES(object):
       return result
 
    def encrypt(self, m):
-         return self.descrypt(m, self.subkeys)
+         message = BitArray(bytes=m)
+         return self.descrypt(message, self.subkeys)
 
    def decrypt(self, c):
+         cipher = BitArray(bytes=c)
          revkeys = self.subkeys
          revkeys.reverse()
-         return self.descrypt(c, revkeys)
+         return self.descrypt(cipher, revkeys)
          
 if __name__ == '__main__':
-   box = DES(BitArray(bin='0b0001001100110100010101110111100110011011101111001101111111110001'))
-   box.genSubKeys()
-   c = box.encrypt(BitArray(hex='0x0123456789ABCDEF'))
-   print "Encrypted=",c
-   print box.decrypt(c)
+   print 'This module should be imported'

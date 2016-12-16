@@ -1,11 +1,16 @@
 import threading
 import socket
+import struct
+import bitstring
+import pydes
+import pydh
 
 class Server(threading.Thread):
    def __init__(self, port, lock):
       super(Server, self).__init__()
       self.port = port
       self.lock = lock
+      self.box = None
 
    def run(self):
       self.startup()
@@ -24,7 +29,20 @@ class Server(threading.Thread):
       (clientSocket, address) = self.sock.accept()
       self.client = clientSocket
       self.tprint("Made connection with client at " + str(address))
+      self.tprint("Waiting for Diffie-Helman initation...")
+      buff = self.client.recv(8)
+      gen, group = struct.unpack('!II', buff)
       
+      self.tprint("Diffie-Helman initiated!")
+      DH = pydh.DiffieHellman(generator=gen, group=group)
+
+      self.client.send(bytes(DH.publicKey))
+      otherKey = int(self.client.recv(4096))
+      DH.genKey(otherKey)
+
+      self.box = pydes.DES(DH.getKey()[:16])
+      self.box.genSubKeys()
+      self.tprint('DES key calculated, beginning DES communication now!')
 
    def tprint(self, str):
       self.lock.acquire()

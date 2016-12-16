@@ -1,5 +1,8 @@
 import threading
 import socket
+import struct
+import pydes
+import pydh
 
 class Client(threading.Thread):
    def __init__(self, ip, port, lock):
@@ -7,12 +10,12 @@ class Client(threading.Thread):
       self.ip = ip
       self.port = port
       self.lock = lock
+      self.box = None
    
    def run(self):
       self.startup()
       while True:
          text = str(raw_input())
-         self.tprint(text)
          self.sock.send(text)
 
    def startup(self):
@@ -24,6 +27,17 @@ class Client(threading.Thread):
          err = self.sock.connect_ex((self.ip, self.port))
 
       self.tprint("Speaking on port " + str(self.port))
+      self.tprint("Initiating Diffie-Hellman...")
+      DH = pydh.DiffieHellman(generator=2, group=5)
+      self.sock.send(struct.pack('!II', 2, 5))
+
+      self.sock.send(bytes(DH.publicKey))
+      otherKey = int(self.sock.recv(4096))
+      DH.genKey(otherKey)
+
+      self.box = pydes.DES(DH.getKey()[:16])
+      self.box.genSubKeys()
+      self.tprint('DES key calculated, beginning DES communication now!')
 
    def tprint(self, str):
       self.lock.acquire()
