@@ -21,11 +21,17 @@ class Client(threading.Thread):
          hext = text.encode('hex')
          ba = bs.BitArray(hex='0x'+hext)
 
+         buff = '' 
          for block in ba.cut(64):
-            self.tprint("Plain:    " + str(block))
-            self.tprint("Encrypted:" + str(self.box.encrypt(block)))
-            self.sock.send(self.box.encrypt(block).bytes)
-         self.sock.send(self.box.encrypt(ba[ba.length/64 * 64:].bytes))
+            c = self.box.encrypt(block)
+            buff += c.hex
+            self.sock.send(c.bytes)
+            
+         lastbit = self.box.encrypt(ba[ba.length/64 * 64:])
+         buff += lastbit.hex
+         self.sock.send(lastbit.bytes)
+         self.tprint(buff)
+
 
    def startup(self):
       self.tprint("Starting up...")
@@ -37,8 +43,8 @@ class Client(threading.Thread):
 
       self.tprint("Speaking on port " + str(self.port))
       self.tprint("Initiating Diffie-Hellman...")
-      DH = pydh.DiffieHellman(generator=2, group=5)
-      self.sock.send(struct.pack('!II', 2, 5))
+      DH = pydh.DiffieHellman(generator=2, group=17)
+      self.sock.send(struct.pack('!II', 2, 17))
 
       self.sock.send(bytes(DH.publicKey))
       otherKey = int(self.sock.recv(4096))
@@ -46,7 +52,7 @@ class Client(threading.Thread):
 
       self.box = pydes.DES(DH.getKey()[:16])
       self.box.genSubKeys()
-      self.tprint(DH.getKey()[:16])
+      self.tprint("DES Key=" + str(DH.getKey()[:16]))
       self.tprint('DES key calculated, beginning DES communication now!')
 
    def tprint(self, str):

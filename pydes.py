@@ -186,7 +186,7 @@ class DES(object):
       return self.descrypt(m, self.subkeys)
 
    def decrypt(self, c):
-      revkeys = self.subkeys
+      revkeys = self.subkeys[:]
       revkeys.reverse()
       return self.descrypt(c, revkeys)
          

@@ -14,15 +14,19 @@ class Server(threading.Thread):
 
    def run(self):
       self.startup()
-      buffer = ''
+      buff = ''
       while True:
          cipher = self.client.recv(8)
          b = bs.BitArray(bytes = cipher)
          m = self.box.decrypt(b)
-         self.tprint("Cipher:" + str(b))
-         self.tprint("Plain: " + str(m))
          mstr = m.hex.decode('hex')
-         self.tprint(mstr)
+         for c in mstr:
+            if c == '\f':
+               self.tprint(buff)
+               buff = ''
+               break 
+            else:
+               buff += c
 
    def startup(self):
       self.tprint("Starting up...")
@@ -48,8 +52,8 @@ class Server(threading.Thread):
 
       self.box = pydes.DES(DH.getKey()[:16])
       self.box.genSubKeys()
+      self.tprint("DES Key=" + str(DH.getKey()[:16]))
       self.tprint('DES key calculated, beginning DES communication now!')
-      self.tprint(DH.getKey()[:16])
 
    def tprint(self, str):
       self.lock.acquire()
